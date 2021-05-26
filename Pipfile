@@ -1,0 +1,32 @@
+[[source]]
+url = "https://pypi.python.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+aiohttp = "*"
+aiodns = "*"
+beautifulsoup4 = "*"
+cchardet = "*"
+dataclasses = "*"
+elasticsearch = "*"
+PySocks = "*"
+pandas = ">=0.23.0"
+aiohttp-socks = "<=0.4.1"
+schedule = "*"
+geopy = "*"
+fake-useragent = "*"
+googletransx = "*"
+psycopg2 = "*"
+cd = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.8"
+
+[packages.twint]
+git = "https://github.com/twintproject/twint.git"
+
+[packages.d5ab11c]
+path = "/home/young/Desktop/code/trading/twint"
