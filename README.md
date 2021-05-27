@@ -28,7 +28,6 @@ Twitter limits scrolls while browsing the user timeline. This means that with `.
 
 ## Requirements
 
-- Python 3.6;
 - aiohttp;
 - aiodns;
 - beautifulsoup4;
@@ -50,7 +49,7 @@ Twitter limits scrolls while browsing the user timeline. This means that with `.
 ```bash
 git clone --depth=1 https://github.com/twintproject/twint.git
 cd twint
-pip3 install . -r requirements.txt
+pip3 install -r requirements.txt
 ```
 
 **Pip:**
@@ -69,7 +68,7 @@ pip3 install --user --upgrade git+https://github.com/twintproject/twint.git@orig
 
 ```bash
 pipenv install git+https://github.com/twintproject/twint.git#egg=twint
-import psycopg2
+pip install psycopg2
 ```
 
 **activate enviornment**

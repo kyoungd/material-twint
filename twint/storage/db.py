@@ -1,7 +1,6 @@
 #!/usr/bin/python
-import psycopg2
 from datetime import datetime, timedelta, date
-import pandas as pd
+from kafka import KafkaProducer
 import json
 from configparser import ConfigParser
 
@@ -24,9 +23,11 @@ def config(filename='database.ini', section='postgresql'):
 
     return db
 
+
 def init(db):
     pass
     # do nothing;
+
 
 def fTable(Followers):
     if Followers:
@@ -35,6 +36,7 @@ def fTable(Followers):
         table = "following_names"
     return table
 
+
 def uTable(Followers):
     if Followers:
         table = "followers"
@@ -42,100 +44,58 @@ def uTable(Followers):
         table = "following"
     return table
 
+
 def follow(conn, Username, Followers, User):
     pass
+
 
 def get_hash_id(conn, id):
     return ""
 
+
 def user(conn, config, User):
     pass
 
+
+topic = 'TWEET'
+bootstrap_servers = 'localhost:9092'
+producer = KafkaProducer(bootstrap_servers=bootstrap_servers)
+
+
+def postToKafka(tweet):
+    msg = json.dumps(tweet)
+    future = producer.send(topic, key=b'TWEETS_SAVE',
+                           value=msg.encode('utf-8'))
+    print(f'Sending msg: {msg}')
+    result = future.get(timeout=60)
+    metrics = producer.metrics()
+    print(metrics)
+
+
 def tweets(conn, Tweet, config):
     try:
-        cur = conn.cursor()
-
         jsondata = json.dumps(Tweet.__dict__)
 
-        insertQuery = """INSERT INTO tweets (tweet_text, author_id, tweet_id, retweet_count, reply_count, like_count, quote_count, user_id, user_name, symbol, tweet_json) 
-                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id;"""
-        entry = (
-            Tweet.tweet,
-            Tweet.user_id_str,
-            Tweet.id_str,
-            Tweet.retweets_count,
-            Tweet.replies_count,
-            Tweet.likes_count,
-            0,
-            Tweet.user_id_str,
-            Tweet.username,
-            config.Database,
-            jsondata)
-
-        cur.execute(insertQuery, entry)
-        # get the generated id back
-        id = cur.fetchone()[0]
-        conn.commit()
-        return id
-    except (Exception, psycopg2.DatabaseError) as error:
+        entry = {
+            "tweet_text": Tweet.tweet,
+            "author_id": Tweet.user_id_str,
+            "tweet_id": Tweet.id_str,
+            "retweet_count": Tweet.retweets_count,
+            "replies_count": Tweet.replies_count,
+            "likes_count": Tweet.likes_count,
+            "quote_count": 0,
+            "user_id": Tweet.user_id_str,
+            "user_name": Tweet.username,
+            "symbol": config.Database,
+            "tweet_json": jsondata}
+        postToKafka(entry)
+    except (Exception) as error:
         print(error)
         return 0
 
 
-def update_search_rule(conn, id):
-    try:
-        cdt = datetime.today()
-        one_date = datetime(
-            cdt.year, cdt.month, cdt.day, cdt.hour, cdt.minute, cdt.second)
-        cur = conn.cursor()
-        sql = 'UPDATE public.symbols SET last_searched_on = %s WHERE id = $s'
-        entry = ()
-        cur.execute(sql, entry)
-        # get the generated id back
-        result = cur.fetchone()
-        if (result == None):
-            return False, None
-        conn.commit()
-    except (Exception, psycopg2.DatabaseError) as error:
-        print(error)
-        return False, None
-
-
-def get_search_rules(conn):
-    try:
-        cur = conn.cursor()
-
-        sql = 'SELECT id, symbol, last_searched_on FROM public.symbols WHERE is_rule_active = true'
-
-        # sql = """SELECT data FROM studies where study_type=%s and symbol=%s and period=%s and published_on >= %s"""
-        # execute the SELECT statement
-        entry = ()
-        cur.execute(sql, entry)
-        # get the generated id back
-        result = cur.fetchone()
-        if (result == None):
-            return False, None
-        conn.commit()
-        return True, result
-    except (Exception, psycopg2.DatabaseError) as error:
-        print(error)
-        return False, None
-
-
 def Conn(database):
-    try:
-        if database:
-            connect = None
-            # read connection parameters
-            params = config()
-
-            # connect to the PostgreSQL server
-            print('Connecting to the PostgreSQL database...')
-            connect = psycopg2.connect(**params)
-            return connect
-        else:
-            return ""
-    except (Exception, psycopg2.DatabaseError) as error:
-        print(error)
-        exit(0)
-
+    if database:
+        return ""
+    else:
+        return ""

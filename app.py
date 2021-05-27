@@ -1,13 +1,16 @@
 import twint
 import os
+from flask import Flask, request
+from flask_cors import CORS
 '''
 app.py - Make twint into an API
 '''
 
+
 def search_result_db(c, run):
     print("[+] Beginning DB test in {}".format(str(run)))
     c.Since = "2021-5-14"
-    c.Verified=True,
+    c.Verified = True,
     c.Search = "AAPL"
     c.Database = "AAPL"
     c.Limit = 1000
@@ -18,20 +21,52 @@ def search_result_db(c, run):
 
 def main():
     conn = twint.storage.db.Conn('random-id')
-    rules = twint.storage.db.get_search_rules(conn)
-    for rule in rules:
-        print(rules)
-        c = twint.Config()
-        c.Since = rule.last_searched_on.strftime("%Y-%m-%d %H:%M:%S")
-        c.Verified=True,
-        c.Search = rule.symbol
-        c.Database = rule.symbol
-        c.Limit = 1000
-        c.Store_object = True
-        c.User_full = True
-        twint.run.Search(c)
-        print("[+] Run complete!")
+    # rules = twint.storage.db.get_search_rules(conn)
+    # for rule in rules:
+    #     print(rules)
+    c = twint.Config()
+    c.Since = "2021-05-25 00:00:00"
+    c.Verified = True,
+    c.Search = "gogl"
+    c.Database = "gogl"
+    c.Limit = 1000
+    c.Store_object = True
+    c.User_full = True
+    twint.run.Search(c)
+    print("[+] Run complete!")
+
+
+# if __name__ == '__main__':
+#     main()
+
+app = Flask(__name__)
+CORS(app)
+
+
+@app.route("/tweets", methods=['POST'])
+def score():
+    try:
+        messages = request.get_json()['messages']
+        message = messages[0]
+        if (message['key'] == 'TWEETS_GET'):
+            symbol = message['value']['symbol']
+            from_dt = message['value']['from_dt']
+            conn = twint.storage.db.Conn(symbol)
+            # ------------------------------------------------------
+            c = twint.Config()
+            # c.Since = from_dt.strftime("%Y-%m-%d %H:%M:%S")
+            c.Since = from_dt
+            c.Verified = True,
+            c.Search = symbol
+            c.Database = symbol
+            c.Limit = 1000
+            c.Store_object = True
+            c.User_full = True
+            twint.run.Search(c)
+    except (Exception) as error:
+        print(error)
+    return "OK"
 
 
 if __name__ == '__main__':
-    main()
+    app.run(host='0.0.0.0', port=8101, debug=False, threaded=True)

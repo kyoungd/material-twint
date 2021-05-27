@@ -17,7 +17,9 @@ schedule = "*"
 geopy = "*"
 fake-useragent = "*"
 googletransx = "*"
-psycopg2 = "*"
+flask = "*"
+flask_cors = "*"
+kafka-python = "*"
 cd = "*"
 
 [dev-packages]
