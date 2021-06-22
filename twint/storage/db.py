@@ -2,6 +2,7 @@
 from datetime import datetime, timedelta, date
 from kafka import KafkaProducer
 import json
+import os
 from configparser import ConfigParser
 
 
@@ -57,8 +58,8 @@ def user(conn, config, User):
     pass
 
 
-topic = 'TWEET'
-bootstrap_servers = 'localhost:9092'
+topic = os.getenv('KAFKA_TOPIC', 'TWEET')
+bootstrap_servers = os.getenv('KAFKA_URL', 'localhost:9092')
 producer = KafkaProducer(bootstrap_servers=bootstrap_servers)
 
 
@@ -87,7 +88,8 @@ def tweets(conn, Tweet, config):
             "user_id": Tweet.user_id_str,
             "user_name": Tweet.username,
             "symbol": config.Database,
-            "tweet_json": jsondata}
+            "tweet_json": jsondata,
+            "tweet_dt": Tweet.datetime}
         postToKafka(entry)
     except (Exception) as error:
         print(error)

@@ -233,3 +233,15 @@ Notes:
 ## Contact
 
 If you have any question, want to join in discussions, or need extra help, you are welcome to join our Twint focused channel at [OSINT team](https://osint.team)
+
+## ENVIRONMENT VARIABLES
+
+KAFKA_TOPIC='TWEET'
+KAFKA_URL='localhost:9092'
+HOST_URL='0.0.0.0'
+HOST_PORT=8101
+
+# ---------- MATERIAL-TWINT IMAGE
+
+sudo docker build -t material-twint .
+docker run -it -p 5000:5000 material-twint

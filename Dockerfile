@@ -1,10 +1,19 @@
-FROM python:3.6-buster
-LABEL maintainer="codyzacharias@pm.me"
+FROM continuumio/miniconda:latest
 
-WORKDIR /root
+WORKDIR /home/docker_conda_template
 
-RUN git clone --depth=1 https://github.com/twintproject/twint.git && \
-	cd /root/twint && \
-	pip3 install . -r requirements.txt
+COPY . .
+COPY twint twint
+COPY elasticsearch elasticsearch
+RUN echo "pip install ./twint" > ~/.bashrc
 
-CMD /bin/bash
+RUN conda env create -f environment.yml
+
+RUN echo "source activate base_twint" > ~/.bashrc
+ENV PATH /opt/conda/envs/baseapi/bin:$PATH
+
+
+EXPOSE 8101
+
+ENTRYPOINT ["python"]
+CMD ["app.py"]

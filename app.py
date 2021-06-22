@@ -68,5 +68,12 @@ def score():
     return "OK"
 
 
+@app.route("/live/ping", methods=['GET'])
+def test():
+    return "OK"
+
+
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8101, debug=False, threaded=True)
+    hostEnv = os.getenv('HOST_URL', '0.0.0.0')
+    portEnv = os.getenv('HOST_PORT', 8101)
+    app.run(host=hostEnv, port=portEnv, debug=False, threaded=True)
